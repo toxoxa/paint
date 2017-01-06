@@ -65,7 +65,7 @@ function trackDrag(onMove, onEnd) {
   addEventListener("mouseup", end);
 }
 
-tools.Line = function(event, cx, onEnd) {
+tools.Pencil = function(event, cx, onEnd) {
   cx.lineCap = "round";
 
   var pos = relativePos(event, cx.canvas);
@@ -80,7 +80,7 @@ tools.Line = function(event, cx, onEnd) {
 
 tools.Erase = function(event, cx) {
   cx.globalCompositeOperation = "destination-out";
-  tools.Line(event, cx, function() {
+  tools.Pencil(event, cx, function() {
     cx.globalCompositeOperation = "source-over";
   });
 };
