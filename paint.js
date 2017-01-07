@@ -20,7 +20,7 @@ var controls = Object.create(null);
 
 //Добавление элемента рисования к элементу DOM, который передаётся в качестве аргумента
 function createPaint(parent) {
-  var canvas = elt("canvas", {width: 500, height: 300});
+  var canvas = elt("canvas", {width: 800, height: 400});
   var cx = canvas.getContext("2d");
   var toolbar = elt("div", {class: "toolbar"});
   for (var name in controls)
@@ -83,4 +83,28 @@ tools.Erase = function(event, cx) {
   tools.Pencil(event, cx, function() {
     cx.globalCompositeOperation = "source-over";
   });
+};
+
+//Цвет инструмента
+controls.color = function(cx) {
+  var input = elt("input", {type: "color"});
+  input.addEventListener("change", function() {
+    cx.fillStyle = input.value;
+    cx.strokeStyle = input.value;
+  });
+  return elt("span", null, "Color: ", input);
+};
+
+//Размер кисти
+controls.brushSize = function(cx) {
+  var select = elt("select");
+  var sizes = [1, 2, 3, 5, 8, 12, 25, 35, 50, 75, 100];
+  sizes.forEach(function(size) {
+    select.appendChild(elt("option", {value: size},
+                           size + " pixels"));
+  });
+  select.addEventListener("change", function() {
+    cx.lineWidth = select.value;
+  });
+  return elt("span", null, "Brush size: ", select);
 };
