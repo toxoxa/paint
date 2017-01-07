@@ -65,6 +65,19 @@ function trackDrag(onMove, onEnd) {
   addEventListener("mouseup", end);
 }
 
+tools.Rectangle = function(event, cx) {
+   var startPos = relativePos(event, cx.canvas);
+   var pos = relativePos(event, cx.canvas);
+   trackDrag(function(event) {
+      cx.moveTo(pos.x, pos.y);
+      pos = relativePos(event, cx.canvas);
+      cx.stroke();
+   },
+   function(event) {
+      cx.fillRect(startPos.x, startPos.y, -(startPos.x - pos.x), -(startPos.y - pos.y));
+   });
+};
+
 tools.Pencil = function(event, cx, onEnd) {
   cx.lineCap = "round";
 
@@ -107,4 +120,31 @@ controls.brushSize = function(cx) {
     cx.lineWidth = select.value;
   });
   return elt("span", null, "Brush size: ", select);
+};
+
+function loadImageURL(cx, url) {
+  var image = document.createElement("img");
+  image.addEventListener("load", function() {
+    var color = cx.fillStyle, size = cx.lineWidth;
+    cx.canvas.width = image.width;
+    cx.canvas.height = image.height;
+    cx.drawImage(image, 0, 0);
+    cx.fillStyle = color;
+    cx.strokeStyle = color;
+    cx.lineWidth = size;
+  });
+  image.src = url;
+}
+
+controls.openFile = function(cx) {
+  var input = elt("input", {type: "file"});
+  input.addEventListener("change", function() {
+    if (input.files.length == 0) return;
+    var reader = new FileReader();
+    reader.addEventListener("load", function() {
+      loadImageURL(cx, reader.result);
+    });
+    reader.readAsDataURL(input.files[0]);
+  });
+  return elt("div", null, "Open file: ", input);
 };
