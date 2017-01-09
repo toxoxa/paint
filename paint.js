@@ -1,3 +1,9 @@
+//содержит функции для инициализации элементов управления под картинкой
+var controls = Object.create(null);
+
+//Инструменты рисования
+var tools = Object.create(null);
+
 //Создание элемента с заданными аттрибутами
 function elt(name, attributes) {
   var node = document.createElement(name);
@@ -15,9 +21,6 @@ function elt(name, attributes) {
   return node;
 }
 
-//содержит функции для инициализации элементов управления под картинкой
-var controls = Object.create(null);
-
 //Добавление элемента рисования к элементу DOM, который передаётся в качестве аргумента
 function createPaint(parent) {
   var canvas = elt("canvas", {width: 800, height: 400});
@@ -29,9 +32,6 @@ function createPaint(parent) {
   var panel = elt("div", {class: "picturepanel"}, canvas);
   parent.appendChild(elt("div", null, panel, toolbar));
 }
-
-//Инструменты рисования
-var tools = Object.create(null);
 
 controls.tool = function(cx) {
   var select = elt("select");
@@ -48,12 +48,17 @@ controls.tool = function(cx) {
   return elt("span", null, "Tool: ", select);
 };
 
+//сопоставляет координаты курсора с координатами точек на холсте
 function relativePos(event, element) {
   var rect = element.getBoundingClientRect();
   return {x: Math.floor(event.clientX - rect.left),
           y: Math.floor(event.clientY - rect.top)};
 }
 
+/*регистрирует и убирает события mousemove
+onMove – функция, которая вызывается при каждом событии "mousemove"
+onEnd – функция, которая вызывается при отпускании кнопки
+*/
 function trackDrag(onMove, onEnd) {
   function end(event) {
     removeEventListener("mousemove", onMove);
@@ -65,6 +70,7 @@ function trackDrag(onMove, onEnd) {
   addEventListener("mouseup", end);
 }
 
+//Прямоугольник
 tools.Rectangle = function(event, cx) {
    var startPos = relativePos(event, cx.canvas);
    var pos = relativePos(event, cx.canvas);
@@ -78,6 +84,7 @@ tools.Rectangle = function(event, cx) {
    });
 };
 
+//Карандаш
 tools.Pencil = function(event, cx, onEnd) {
   cx.lineCap = "round";
 
@@ -91,6 +98,7 @@ tools.Pencil = function(event, cx, onEnd) {
   }, onEnd);
 };
 
+//Стерка
 tools.Erase = function(event, cx) {
   cx.globalCompositeOperation = "destination-out";
   tools.Pencil(event, cx, function() {
